@@ -12,12 +12,19 @@ const registerSocketHandlers = require('./socket/socketHandler');
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:3000').split(',');
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:3000,https://chatter-boxfrontend-psi.vercel.app').split(',');
 
 app.use(cors({
-  origin: 'https://chatter-boxfrontend-psi.vercel.app',
-  credentials: true
-}));app.use(express.json());
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
+app.use(express.json());
 
 // REST routes
 app.use('/api/auth', authRoutes);
@@ -27,9 +34,17 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 // Socket.io
 const io = new Server(server, {
-    origin: 'https://chatter-boxfrontend-psi.vercel.app',
-  methods: ['GET', 'POST'],
-  credentials: true
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error('Not allowed by Socket.IO CORS'));
+    },
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
 });
 registerSocketHandlers(io);
 
