@@ -14,8 +14,10 @@ const server = http.createServer(app);
 
 const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:3000').split(',');
 
-app.use(cors({ origin: allowedOrigins, credentials: true }));
-app.use(express.json());
+app.use(cors({
+  origin: 'https://chatter-boxfrontend-ppdopptp3-ritesh-68c4.vercel.app',
+  credentials: true
+}));app.use(express.json());
 
 // REST routes
 app.use('/api/auth', authRoutes);
@@ -25,7 +27,9 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 // Socket.io
 const io = new Server(server, {
-  cors: { origin: allowedOrigins, methods: ['GET', 'POST'] },
+    origin: 'https://chatter-boxfrontend-ppdopptp3-ritesh-68c4.vercel.app',
+  methods: ['GET', 'POST'],
+  credentials: true
 });
 registerSocketHandlers(io);
 
