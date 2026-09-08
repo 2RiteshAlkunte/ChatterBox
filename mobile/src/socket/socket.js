@@ -7,6 +7,18 @@ export const socket = io(SOCKET_URL, {
   transports: ['websocket', 'polling'],
 });
 
+socket.on('connect', () => {
+  console.log('Socket connected:', socket.id);
+});
+
+socket.on('connect_error', (error) => {
+  console.log('Socket connection error:', error.message);
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Socket disconnected:', reason);
+});
+
 export function connectSocket(token) {
   if (!token) return socket;
 

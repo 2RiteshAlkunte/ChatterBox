@@ -16,8 +16,6 @@ export default function ChatScreen({ user, room, onBack }) {
   useEffect(() => {
     if (!user?.token || !room) return;
 
-    connectSocket(user.token);
-
     const handleHistory = (payload) => {
       const list = payload?.messages || payload || [];
       setMessages(list);
@@ -55,7 +53,19 @@ export default function ChatScreen({ user, room, onBack }) {
     socket.on('typing', handleTyping);
     socket.on('errorMessage', handleError);
 
-    socket.emit('joinRoom', { room: room.name || room._id });
+    connectSocket(user.token);
+
+    const joinRoom = () => {
+      socket.emit('joinRoom', {
+        room: room.name || room._id,
+      });
+    };
+
+    if (socket.connected) {
+      joinRoom();
+    } else {
+      socket.once('connect', joinRoom);
+    }
 
     return () => {
       socket.off('roomHistory', handleHistory);
@@ -64,6 +74,7 @@ export default function ChatScreen({ user, room, onBack }) {
       socket.off('onlineUsers', handleOnlineUsers);
       socket.off('typing', handleTyping);
       socket.off('errorMessage', handleError);
+      socket.off('connect', joinRoom);
       disconnectSocket();
     };
   }, [room, user]);
