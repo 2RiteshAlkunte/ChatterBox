@@ -29,7 +29,6 @@ export default function Sidebar({ rooms, activeRoom, onSelectRoom, onCreateRoom,
     else setCreateError(result.message);
   };
 
-  const initials = (name) => name?.slice(0, 2).toUpperCase();
   const filteredRooms = rooms.filter((room) => room.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
